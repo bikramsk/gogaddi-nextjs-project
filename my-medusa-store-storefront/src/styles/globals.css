@@ -110,3 +110,113 @@
     @apply text-[32px] leading-[44px] font-semibold;
   }
 }
+
+/* Minimal Slick styles (react-slick) - full width brand slider */
+.brand-slick {
+  width: 100%;
+}
+.brand-slick .slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  user-select: none;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.brand-slick .slick-list {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.brand-slick .slick-track {
+  display: flex !important;
+  align-items: center;
+}
+
+.brand-slick .slick-slide {
+  height: auto;
+}
+
+.brand-slick .slick-slide > div {
+  height: 100%;
+}
+
+/* Hero full-height carousel - required for slides to show */
+.hero-slick {
+  height: 100%;
+}
+.hero-slick .slick-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  user-select: none;
+  touch-action: pan-y;
+}
+.hero-slick .slick-list {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: block;
+}
+.hero-slick .slick-track {
+  display: flex !important;
+  height: 100% !important;
+  align-items: stretch;
+}
+.hero-slick .slick-slide {
+  height: 100%;
+  width: 100%;
+  float: none;
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.hero-slick .slick-slide > div {
+  height: 100%;
+  width: 100%;
+  min-width: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+/* Premium select dropdown animation */
+.select-field-dropdown {
+  animation: selectFieldDropdown 0.2s ease-out forwards;
+}
+@keyframes selectFieldDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(12px) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Cars page sidebar: compact inputs fit viewport height */
+.car-filters-viewport .car-filters-compact-input > div {
+  min-height: 2.25rem !important;
+  border-radius: 0.75rem;
+}
+.car-filters-viewport .car-filters-compact-input input {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  font-size: 0.8125rem;
+}
+.car-filters-viewport .car-filters-compact-input [role="combobox"] {
+  font-size: 0.8125rem;
+}

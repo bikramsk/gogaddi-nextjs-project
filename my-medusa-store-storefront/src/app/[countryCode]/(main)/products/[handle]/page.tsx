@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
+import { PLACEHOLDER_IMAGE_URL } from "@lib/constants/placeholder-image"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 
@@ -53,20 +54,23 @@ export async function generateStaticParams() {
 }
 
 function getImagesForVariant(
-  product: HttpTypes.StoreProduct,
+  product: HttpTypes.StoreProduct | null | undefined,
   selectedVariantId?: string
-) {
-  if (!selectedVariantId || !product.variants) {
-    return product.images
+): HttpTypes.StoreProductImage[] {
+  if (!product) return []
+  const baseImages = product.images ?? []
+  if (!selectedVariantId || !product.variants?.length) {
+    return baseImages
   }
 
-  const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images.length) {
-    return product.images
+  const variant = product.variants.find((v) => v.id === selectedVariantId)
+  const variantImages = (variant as any)?.images
+  if (!variant || !Array.isArray(variantImages) || variantImages.length === 0) {
+    return baseImages
   }
 
-  const imageIdsMap = new Map(variant.images.map((i) => [i.id, true]))
-  return product.images!.filter((i) => imageIdsMap.has(i.id))
+  const imageIdsMap = new Map(variantImages.map((i: any) => [i.id, true]))
+  return baseImages.filter((i) => imageIdsMap.has(i.id))
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -111,21 +115,28 @@ export default async function ProductPage(props: Props) {
 
   const pricedProduct = await listProducts({
     countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
+    queryParams: {
+      handle: params.handle,
+      fields: "+images,+categories,+collection,*variants.prices,*variants.options,+metadata",
+    } as any,
   }).then(({ response }) => response.products[0])
-
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
 
   if (!pricedProduct) {
     notFound()
   }
+
+  const images = getImagesForVariant(pricedProduct, selectedVariantId)
+  const imagesToShow =
+    images.length > 0
+      ? images
+      : ([{ id: "placeholder", url: PLACEHOLDER_IMAGE_URL }] as HttpTypes.StoreProductImage[])
 
   return (
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
-      images={images}
+      images={imagesToShow}
     />
   )
 }

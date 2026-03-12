@@ -7,6 +7,7 @@ import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 
@@ -31,34 +32,56 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
+      {/* Breadcrumb */}
+      <div className="content-container pt-4 pb-2">
+        <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
+          <ol className="flex items-center gap-2">
+            <li>
+              <LocalizedClientLink href="/" className="text-blue-600 hover:underline">
+                Home
+              </LocalizedClientLink>
+            </li>
+            <li aria-hidden>/</li>
+            <li>
+              <LocalizedClientLink href="/cars" className="text-blue-600 hover:underline">
+                Cars
+              </LocalizedClientLink>
+            </li>
+            <li aria-hidden>/</li>
+            <li className="text-gray-700 font-medium truncate max-w-[180px]" aria-current="page">
+              {product.title}
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       <div
-        className="content-container  flex flex-col small:flex-row small:items-start py-6 relative"
+        className="content-container flex flex-col lg:flex-row gap-8 lg:gap-12 py-6 pb-10"
         data-testid="product-container"
       >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
-          <ProductTabs product={product} />
-        </div>
-        <div className="block w-full relative">
+        {/* Gallery - prominent for car marketplace */}
+        <div className="w-full lg:flex-1 min-w-0">
           <ImageGallery images={images} />
         </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
+
+        {/* Sidebar - info, tabs, actions */}
+        <div className="w-full lg:max-w-[380px] flex flex-col gap-8">
+          <ProductInfo product={product} />
+          <ProductTabs product={product} />
           <ProductOnboardingCta />
           <Suspense
             fallback={
-              <ProductActions
-                disabled={true}
-                product={product}
-                region={region}
-              />
+              <ProductActions disabled={true} product={product} region={region} />
             }
           >
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
         </div>
       </div>
+
+      {/* Related cars */}
       <div
-        className="content-container my-16 small:my-32"
+        className="content-container my-16"
         data-testid="related-products-container"
       >
         <Suspense fallback={<SkeletonRelatedProducts />}>

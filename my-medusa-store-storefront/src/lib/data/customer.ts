@@ -259,3 +259,46 @@ export const updateCustomerAddress = async (
       return { success: false, error: err.toString() }
     })
 }
+
+export async function requestResetPassword(
+  email: string
+): Promise<{ success: boolean; error?: string }> {
+  const trimmed = (email ?? "").trim()
+  if (!trimmed) {
+    return { success: false, error: "Email is required." }
+  }
+  try {
+    await sdk.auth.resetPassword("customer", "emailpass", { identifier: trimmed } as any)
+    return { success: true }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to request reset."
+    return { success: false, error: message }
+  }
+}
+
+export async function resetPasswordWithToken(
+  token: string,
+  email: string | null,
+  newPassword: string,
+  _countryCode: string
+): Promise<{ success: boolean; error?: string }> {
+  const t = (token ?? "").trim()
+  const p = (newPassword ?? "").trim()
+
+  if (!t) return { success: false, error: "Invalid or expired link." }
+  if (!p || p.length < 8) return { success: false, error: "Password must be at least 8 characters." }
+
+  try {
+    await sdk.auth.updateProvider(
+      "customer",
+      "emailpass",
+      { email: email ?? undefined, password: p } as any,
+      t
+    )
+    revalidateTag(await getCacheTag("customers"))
+    return { success: true }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to reset password."
+    return { success: false, error: message }
+  }
+}

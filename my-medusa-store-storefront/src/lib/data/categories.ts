@@ -26,6 +26,16 @@ export const listCategories = async (query?: Record<string, any>) => {
     .then(({ product_categories }) => product_categories)
 }
 
+/** Root-level categories for sitemap (no parent), with children. */
+export const getRootCategoriesForSitemap = async () => {
+  const all = await listCategories({ limit: 500 })
+  if (!all?.length) return []
+  const roots = all.filter(
+    (c: any) => !c.parent_category_id && !c.parent_category
+  )
+  return roots
+}
+
 export const getCategoryByHandle = async (categoryHandle: string[]) => {
   const handle = `${categoryHandle.join("/")}`
 

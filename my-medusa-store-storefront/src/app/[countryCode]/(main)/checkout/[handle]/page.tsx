@@ -1,0 +1,114 @@
+import { Metadata } from "next"
+import { notFound } from "next/navigation"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import CheckoutForm from "@modules/checkout/components/checkout-form"
+import { getCarByHandle } from "@lib/data/cars"
+import { formatCarPrice } from "@lib/util/format-car-price"
+
+type Props = {
+  params: Promise<{ countryCode: string; handle: string }>
+}
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params
+  return {
+    title: `Checkout | ${params.handle} | GoGaddi`,
+    description: "Complete your order with billing details, shipping and payment.",
+  }
+}
+
+export default async function CheckoutPage(props: Props) {
+  const { countryCode, handle } = await props.params
+  const { car } = await getCarByHandle(countryCode, handle)
+
+  if (!car) notFound()
+
+  const carUrl = `/${countryCode}/cars/${car.handle}`
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-slate-100 border-b border-slate-200">
+        <div className="content-container py-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
+            Checkout
+          </h1>
+        </div>
+      </div>
+
+      <div className="content-container py-8 md:py-12">
+        <nav className="text-sm text-slate-500 mb-8" aria-label="Breadcrumb">
+          <ol className="flex items-center gap-2">
+            <li>
+              <LocalizedClientLink
+                href="/"
+                className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+              >
+                Home
+              </LocalizedClientLink>
+            </li>
+            <li aria-hidden className="text-slate-400">
+              /
+            </li>
+            <li>
+              <LocalizedClientLink
+                href="/cars"
+                className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+              >
+                Cars
+              </LocalizedClientLink>
+            </li>
+            <li aria-hidden className="text-slate-400">
+              /
+            </li>
+            <li>
+              <LocalizedClientLink
+                href={`/cars/${car.handle}`}
+                className="text-blue-600 hover:text-blue-700 hover:underline font-medium"
+              >
+                {car.name}
+              </LocalizedClientLink>
+            </li>
+            <li aria-hidden className="text-slate-400">
+              /
+            </li>
+            <li className="text-slate-600 font-medium" aria-current="page">
+              Checkout
+            </li>
+          </ol>
+        </nav>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-12">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 lg:p-10">
+              <CheckoutForm
+                car={{
+                  id: car.id,
+                  handle: car.handle,
+                  name: car.name,
+                  brand: car.brand,
+                  price: formatCarPrice(car.price),
+                  city: car.city,
+                  url: carUrl,
+                  image_url: car.thumbnail || car.images?.[0] || null,
+                  fuel_type: car.fuel_type,
+                  transmission: car.transmission,
+                  year: car.year,
+                  km_driven: car.km_driven,
+                  color: car.color,
+                  owner: car.owner,
+                  description: car.description,
+                }}
+              />
+            </div>
+
+            <p className="text-xs text-gray-400 mt-3">
+              Enquiries are sent via Resend. Set <span className="font-mono">RESEND_API_KEY</span> and{" "}
+              <span className="font-mono">CHECKOUT_EMAIL_TO</span> in <span className="font-mono">.env.local</span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

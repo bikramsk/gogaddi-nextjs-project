@@ -1,9 +1,10 @@
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CheckoutForm from "@modules/checkout/components/checkout-form"
 import { getCarByHandle } from "@lib/data/cars"
 import { formatCarPrice } from "@lib/util/format-car-price"
+import { retrieveCustomer } from "@lib/data/customer"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -19,6 +20,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function CheckoutPage(props: Props) {
   const { countryCode, handle } = await props.params
+
+  const customer = await retrieveCustomer().catch(() => null)
+  if (!customer) {
+    redirect(`/${countryCode}/account?redirect=/${countryCode}/checkout/${handle}`)
+  }
+
   const { car } = await getCarByHandle(countryCode, handle)
 
   if (!car) notFound()
@@ -81,6 +88,8 @@ export default async function CheckoutPage(props: Props) {
           <div className="lg:col-span-12">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 lg:p-10">
               <CheckoutForm
+                variantId={car.versions?.[0]?.id ?? ""}
+                countryCode={countryCode}
                 car={{
                   id: car.id,
                   handle: car.handle,
@@ -100,11 +109,6 @@ export default async function CheckoutPage(props: Props) {
                 }}
               />
             </div>
-
-            <p className="text-xs text-gray-400 mt-3">
-              Enquiries are sent via Resend. Set <span className="font-mono">RESEND_API_KEY</span> and{" "}
-              <span className="font-mono">CHECKOUT_EMAIL_TO</span> in <span className="font-mono">.env.local</span>.
-            </p>
           </div>
         </div>
       </div>

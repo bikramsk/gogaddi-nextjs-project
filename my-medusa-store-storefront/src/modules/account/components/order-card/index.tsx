@@ -3,6 +3,7 @@ import { useMemo } from "react"
 
 import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import OrderCancelButton from "@modules/account/components/order-cancel-button"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 
@@ -23,10 +24,20 @@ const OrderCard = ({ order }: OrderCardProps) => {
     return order.items?.length ?? 0
   }, [order])
 
+  const isCanceled =
+    (order as { status?: string }).status?.toLowerCase() === "canceled"
+
   return (
     <div className="bg-white flex flex-col" data-testid="order-card">
-      <div className="uppercase text-large-semi mb-1">
-        #<span data-testid="order-display-id">{order.display_id}</span>
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="uppercase text-large-semi">
+          #<span data-testid="order-display-id">{order.display_id}</span>
+        </div>
+        {isCanceled && (
+          <span className="text-small-regular text-red-600 font-medium">
+            Cancelled
+          </span>
+        )}
       </div>
       <div className="flex items-center divide-x divide-gray-200 text-small-regular text-ui-fg-base">
         <span className="pr-2" data-testid="order-created-at">
@@ -73,7 +84,14 @@ const OrderCard = ({ order }: OrderCardProps) => {
           </div>
         )}
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-2 flex-wrap">
+        {!isCanceled && (
+          <OrderCancelButton
+            orderId={order.id}
+            disabled={isCanceled}
+            variant="transparent"
+          />
+        )}
         <LocalizedClientLink href={`/account/orders/details/${order.id}`}>
           <Button data-testid="order-details-link" variant="secondary">
             See details

@@ -57,18 +57,23 @@ export default function CarCard({ car, featured = false }: { car: CarListItem; f
             </button>
           </div>
 
-          {/* Single badge: featured > car_type > availability */}
-          {featured && (
+          {/* Availability / type badge */}
+          {!car.availability && (
+            <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-red-600/90 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-white">
+              SOLD
+            </div>
+          )}
+          {car.availability && featured && (
             <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-white">
               Featured Deal
             </div>
           )}
-          {!featured && car.car_type && (
+          {car.availability && !featured && car.car_type && (
             <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-slate-700/90 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-white">
               {car.car_type}
             </div>
           )}
-          {!featured && !car.car_type && car.availability && (
+          {car.availability && !featured && !car.car_type && (
             <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-emerald-600/90 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-white">
               Available
             </div>

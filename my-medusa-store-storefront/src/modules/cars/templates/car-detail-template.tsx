@@ -74,6 +74,7 @@ function RelatedCarCard({ related }: { related: RelatedCar }) {
     subtitle: null,
     brand: null,
     model: null,
+    category_handles: [],
     fuel_type: null,
     transmission: null,
     year: null,
@@ -83,6 +84,7 @@ function RelatedCarCard({ related }: { related: RelatedCar }) {
     mileage: null,
     owner: null,
     city: null,
+    car_type: null,
     customer_id: null,
     availability: true,
     price: null,
@@ -265,15 +267,21 @@ export default function CarDetailTemplate({ car }: { car: CarDetail }) {
                 )}
 
                 <div className="mt-5 space-y-3">
-                  <LocalizedClientLink
-                    href={`/checkout/${car.handle}`}
-                    className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 px-4 rounded-xl transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13L17 13M7 13h10" />
-                    </svg>
-                    Checkout / Enquire
-                  </LocalizedClientLink>
+                  {car.availability ? (
+                    <LocalizedClientLink
+                      href={`/checkout/${car.handle}`}
+                      className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 px-4 rounded-xl transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13L17 13M7 13h10" />
+                      </svg>
+                      Checkout / Enquire
+                    </LocalizedClientLink>
+                  ) : (
+                    <div className="w-full flex items-center justify-center gap-2 bg-red-100 text-red-700 font-extrabold py-3 px-4 rounded-xl border border-red-200 cursor-not-allowed select-none">
+                      🚫 SOLD — No Longer Available
+                    </div>
+                  )}
                   <a
                     href="tel:+919999999999"
                     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-colors"

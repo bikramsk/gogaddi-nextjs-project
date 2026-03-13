@@ -225,7 +225,13 @@ function mapProductToCar(p: HttpTypes.StoreProduct): CarListItem {
     city: (meta.city as string) ?? null,
     car_type: (meta.car_type as string) ?? null,
     customer_id: (meta.customer_id as string) ?? null,
-    availability: true,
+    availability: (() => {
+      const qty = firstVariant?.inventory_quantity
+      const managed = firstVariant?.manage_inventory
+      // If inventory is not tracked, treat as available
+      if (!managed || qty === null || qty === undefined) return true
+      return qty > 0
+    })(),
     price: price ?? null,
     description: p.description ?? null,
     features: flattenMetadataFeatures(meta),
@@ -254,9 +260,8 @@ export async function listCars(
       countryCode,
       queryParams: {
         limit: 200,
-        // fetch the same shape you see in admin (images, variants.prices, metadata, categories/collection)
         fields:
-          "+images,+categories,+collection,*variants.prices,*variants.options,+variants.options.option,+metadata",
+          "+images,+categories,+collection,*variants.prices,*variants.options,+variants.options.option,+metadata,+variants.inventory_quantity,+variants.manage_inventory",
       } as any,
     })
 
@@ -285,7 +290,7 @@ export async function getCarByHandle(
         limit: 1,
         handle,
         fields:
-          "+images,+categories,+collection,*variants.prices,*variants.options,+variants.options.option,+metadata",
+          "+images,+categories,+collection,*variants.prices,*variants.options,+variants.options.option,+metadata,+variants.inventory_quantity,+variants.manage_inventory",
       } as any,
     })
 

@@ -7,5 +7,15 @@ export default defineMiddlewares({
       method: ["POST"],
       middlewares: [authenticate("customer", ["session", "bearer"])],
     },
+    {
+      matcher: "/store/orders/:id/cancel",
+      method: ["POST"],
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
+    {
+      matcher: "/store/orders/:id/update",
+      method: ["POST"],
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
   ],
 })

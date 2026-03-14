@@ -8,7 +8,8 @@ const HERO_IMAGES = [
   "/cars/peter-broomfield-m3m-lnR90uM-unsplash.jpg",
   "/cars/joshua-koblin-eqW1MPinEV4-unsplash.jpg",
   "/cars/olav-tvedt-6lSBynPRaAQ-unsplash.jpg",
-  "/cars/stephan-louis-mN8H_fe040Y-unsplash.jpg",
+  "/cars/img-1.jpg",
+  "/cars/img-2.jpg",
 ]
 
 function HeroSlide({ src, alt }: { src: string; alt: string }) {

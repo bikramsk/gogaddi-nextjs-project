@@ -19,7 +19,7 @@ export const retrieveOrder = async (id: string) => {
       method: "GET",
       query: {
         fields:
-          "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product",
+          "*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product,*shipping_address",
       },
       headers,
       next,
@@ -40,6 +40,7 @@ export const listOrders = async (
 
   const next = {
     ...(await getCacheOptions("orders")),
+    revalidate: 0,
   }
 
   return sdk.client
@@ -54,7 +55,7 @@ export const listOrders = async (
       },
       headers,
       next,
-      cache: "force-cache",
+      cache: "no-store",
     })
     .then(({ orders }) => orders)
     .catch((err) => medusaError(err))
@@ -109,4 +110,77 @@ export const declineTransferRequest = async (id: string, token: string) => {
     .declineTransfer(id, { token }, {}, headers)
     .then(({ order }) => ({ success: true, error: null, order }))
     .catch((err) => ({ success: false, error: err.message, order: null }))
+}
+
+export type CancelOrderResult = {
+  success: boolean
+  error: string | null
+}
+
+export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> => {
+  if (!orderId?.trim()) {
+    return { success: false, error: "Order ID is required" }
+  }
+
+  const headers = await getAuthHeaders()
+  if (!("authorization" in headers) || !headers.authorization) {
+    return { success: false, error: "Please sign in to cancel an order" }
+  }
+
+  return sdk.client
+    .fetch<{ order: unknown }>(`/store/orders/${orderId}/cancel`, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+    })
+    .then(() => ({ success: true, error: null }))
+    .catch((err: { message?: string }) => ({
+      success: false,
+      error: err?.message ?? "Failed to cancel order",
+    }))
+}
+
+export type UpdateOrderAddressPayload = {
+  first_name?: string
+  last_name?: string
+  address_1?: string
+  address_2?: string
+  city?: string
+  postal_code?: string
+  country_code?: string
+  province?: string
+  phone?: string
+}
+
+export type UpdateOrderResult = {
+  success: boolean
+  error: string | null
+}
+
+export const updateOrder = async (
+  orderId: string,
+  payload: { shipping_address: UpdateOrderAddressPayload }
+): Promise<UpdateOrderResult> => {
+  if (!orderId?.trim()) {
+    return { success: false, error: "Order ID is required" }
+  }
+  if (!payload?.shipping_address || typeof payload.shipping_address !== "object") {
+    return { success: false, error: "Shipping address is required" }
+  }
+
+  const headers = await getAuthHeaders()
+  if (!("authorization" in headers) || !headers.authorization) {
+    return { success: false, error: "Please sign in to update an order" }
+  }
+
+  return sdk.client
+    .fetch<{ order: unknown }>(`/store/orders/${orderId}/update`, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: payload as unknown as BodyInit,
+    })
+    .then(() => ({ success: true, error: null }))
+    .catch((err: { message?: string }) => ({
+      success: false,
+      error: err?.message ?? "Failed to update order",
+    }))
 }

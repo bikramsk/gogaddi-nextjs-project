@@ -36,15 +36,18 @@ type CarPayload = {
 
 type Props = {
   car: CarPayload
+  variantId: string
+  countryCode: string
 }
 
 const sectionTitleClass =
   "text-lg md:text-xl font-bold text-blue-700/90 italic mb-4 block"
 
-export default function CheckoutForm({ car }: Props) {
+export default function CheckoutForm({ car, variantId, countryCode }: Props) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle")
   const [error, setError] = useState("")
+  const [orderId, setOrderId] = useState<number | null>(null)
 
   // Billing
   const [firstName, setFirstName] = useState("")
@@ -67,6 +70,7 @@ export default function CheckoutForm({ car }: Props) {
 
   const canSubmit = useMemo(() => {
     return (
+      status !== "success" &&
       firstName.trim().length >= 1 &&
       lastName.trim().length >= 1 &&
       email.includes("@") &&
@@ -79,6 +83,7 @@ export default function CheckoutForm({ car }: Props) {
       !loading
     )
   }, [
+    status,
     firstName,
     lastName,
     email,
@@ -102,6 +107,10 @@ export default function CheckoutForm({ car }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          variant_id: variantId,
+          // Use the customer's selected country for region lookup in Medusa.
+          // Fallback to the route countryCode if the form is empty.
+          country_code: (country || countryCode).toLowerCase(),
           car: {
             id: car.id,
             handle: car.handle,
@@ -142,9 +151,14 @@ export default function CheckoutForm({ car }: Props) {
 
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = `/${countryCode}/account`
+          return
+        }
         throw new Error(data?.message ?? "Failed to submit")
       }
 
+      if (data?.order_display_id) setOrderId(data.order_display_id)
       setStatus("success")
     } catch (err: unknown) {
       setStatus("error")
@@ -434,8 +448,20 @@ export default function CheckoutForm({ car }: Props) {
       </div>
 
       {status === "success" && (
-        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          Your order has been submitted. We&apos;ll contact you soon.
+        <div className="rounded-xl border border-green-200 bg-green-50 px-6 py-5 text-green-800">
+          <p className="font-bold text-base mb-1">
+            ✅ Booking Confirmed{orderId ? ` — Order #${orderId}` : ""}!
+          </p>
+          <p className="text-sm mb-3">
+            Thank you for booking <strong>{car.name}</strong>. A confirmation email has been sent to your inbox.
+            Our team will contact you within 24 hours.
+          </p>
+          <LocalizedClientLink
+            href="/account/orders"
+            className="inline-block text-sm font-semibold underline text-green-700 hover:text-green-900"
+          >
+            View My Orders →
+          </LocalizedClientLink>
         </div>
       )}
 

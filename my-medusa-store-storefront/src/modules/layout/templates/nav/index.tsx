@@ -21,11 +21,11 @@ export default async function Nav() {
             data-testid="nav-store-link"
           >
             <Image
-              src="/gogaddi-logo-2.png"
+              src="/gogaddi-logo.webp"
               alt="GoGaddi - India's Trusted Car Marketplace"
               width={160}
               height={44}
-              className="h-8 w-auto object-contain"
+              className="h-8 w-auto object-contain brightness-0"
               priority
             />
           </LocalizedClientLink>

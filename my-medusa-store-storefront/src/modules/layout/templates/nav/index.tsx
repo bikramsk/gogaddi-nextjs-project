@@ -21,7 +21,7 @@ export default async function Nav() {
             data-testid="nav-store-link"
           >
             <Image
-              src="/gogaddi-logo.png"
+              src="/gogaddi-logo-2.png"
               alt="GoGaddi - India's Trusted Car Marketplace"
               width={160}
               height={44}

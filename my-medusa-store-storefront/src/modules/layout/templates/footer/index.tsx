@@ -67,10 +67,10 @@ export default function Footer() {
   }
 
   const socials = [
-    { icon: <Facebook size={18} />, href: "#", color: "hover:text-blue-500" },
-    { icon: <Twitter size={18} />, href: "#", color: "hover:text-sky-400" },
-    { icon: <Instagram size={18} />, href: "#", color: "hover:text-pink-500" },
-    { icon: <Youtube size={18} />, href: "#", color: "hover:text-red-500" },
+    { icon: <Facebook size={18} />, href: "https://www.facebook.com/gogaddi", label: "Facebook", color: "hover:text-blue-500" },
+    { icon: <Twitter size={18} />, href: "https://x.com/gogaddi", label: "X (Twitter)", color: "hover:text-sky-400" },
+    { icon: <Instagram size={18} />, href: "https://www.instagram.com/gogaddi", label: "Instagram", color: "hover:text-pink-500" },
+    { icon: <Youtube size={18} />, href: "https://www.youtube.com/@gogaddi", label: "YouTube", color: "hover:text-red-500" },
   ]
 
   return (
@@ -99,6 +99,9 @@ export default function Footer() {
                 <motion.a
                   key={i}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
                   whileHover={{ y: -3 }}
                   className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center transition-colors duration-300 ${social.color} hover:bg-white/10`}
                 >
